@@ -117,6 +117,42 @@ export const useDatabase = () => {
     stmt.free()
   }
 
+  const insertProduct = (product: any) => {
+    if (!db) return false
+    
+    try {
+      const stmt = db.prepare(`
+        INSERT OR REPLACE INTO products (
+          id, name, price, original_price, tax_benefit, category, 
+          service_id, service_name, image_url, description, region, 
+          tags, rating, review_count
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `)
+      
+      stmt.run([
+        product.id,
+        product.name,
+        product.price,
+        product.originalPrice,
+        product.taxBenefit,
+        product.category,
+        product.service.id,
+        product.service.name,
+        product.imageUrl,
+        product.description,
+        product.region,
+        JSON.stringify(product.tags),
+        product.rating,
+        product.reviewCount
+      ])
+      
+      stmt.free()
+      return true
+    } catch (error) {
+      console.error('Failed to insert product:', error)
+      return false
+    }
+  }
   const getAllProducts = (): FurusatoProduct[] => {
     if (!db) return []
     
@@ -243,6 +279,7 @@ export const useDatabase = () => {
     addUserAction,
     getUserActions,
     saveRecommendation,
-    getRecommendations
+    getRecommendations,
+    insertProduct
   }
 }

@@ -102,25 +102,31 @@
           </UButton>
         </div>
         
-        <div v-if="loadingProducts" class="text-center py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
+        <div v-if="loadingProducts">
+          <ProductsLoadingState :product-count="totalProducts" :is-initializing="true" />
         </div>
         
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <ProductCard 
-            v-for="product in displayProducts" 
-            :key="product.id" 
-            :product="product" 
-          />
+        <div v-else-if="displayProducts.length === 0">
+          <ProductsLoadingState :product-count="totalProducts" />
         </div>
         
-        <div class="text-center mt-8">
-          <UButton 
-            variant="outline" 
-            @click="navigateToProducts"
-          >
-            すべての商品を見る
-          </UButton>
+        <div v-else>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <ProductCard 
+              v-for="product in displayProducts" 
+              :key="product.id" 
+              :product="product" 
+            />
+          </div>
+          
+          <div class="text-center mt-8">
+            <UButton 
+              variant="outline" 
+              @click="navigateToProducts"
+            >
+              すべての商品を見る
+            </UButton>
+          </div>
         </div>
       </div>
 
@@ -243,6 +249,12 @@ onMounted(async () => {
   try {
     await loadProducts()
     totalProducts.value = products.value.length
+    
+    // 商品データが少ない場合は自動的にスクレイピングを開始
+    if (products.value.length < 20) {
+      const { initializeAutoScraping } = useProductScraper()
+      initializeAutoScraping()
+    }
   } catch (error) {
     console.error('Failed to load products:', error)
   } finally {
