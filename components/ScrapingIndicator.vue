@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-const { isScrapingActive, scrapingProgress, stopScraping } = useProductScraper()
+const { isScrapingActive, scrapingProgress, stopScraping } = useRealProductScraper()
 
 const progressPercentage = computed(() => {
   if (scrapingProgress.value.total === 0) return 0

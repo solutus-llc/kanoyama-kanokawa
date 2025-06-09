@@ -209,6 +209,11 @@ export const useProducts = () => {
     }
   }
   
+  const refreshProducts = () => {
+    products.value = getAllProducts()
+    return products.value.length
+  }
+  
   const getProductById = (id: string) => {
     return products.value.find(p => p.id === id)
   }
@@ -240,6 +245,7 @@ export const useProducts = () => {
     products: readonly(products),
     loading: readonly(loading),
     loadProducts,
+    refreshProducts,
     getProductById,
     searchProducts,
     filterByCategory,

@@ -176,7 +176,7 @@
 
 <script setup>
 const { isLoggedIn, userProfile, login } = useLiff()
-const { loadProducts, products, filterByCategory, getPopularProducts } = useProducts()
+const { loadProducts, refreshProducts, products, filterByCategory, getPopularProducts } = useProducts()
 const { getUserActions } = useDatabase()
 
 const loadingProducts = ref(false)
@@ -250,11 +250,18 @@ onMounted(async () => {
     await loadProducts()
     totalProducts.value = products.value.length
     
-    // 商品データが少ない場合は自動的にスクレイピングを開始
-    if (products.value.length < 20) {
-      const { initializeAutoScraping } = useProductScraper()
-      initializeAutoScraping()
-    }
+    // 実際のスクレイピングを開始
+    const { initializeAutoScraping } = useRealProductScraper()
+    initializeAutoScraping()
+    
+    // 30秒ごとに商品リストを更新
+    setInterval(() => {
+      const newCount = refreshProducts()
+      if (newCount !== totalProducts.value) {
+        totalProducts.value = newCount
+        console.log(`商品数が更新されました: ${totalProducts.value}件`)
+      }
+    }, 30000)
   } catch (error) {
     console.error('Failed to load products:', error)
   } finally {

@@ -79,13 +79,49 @@ export const useDatabase = () => {
     if (!db) return
     
     const productsCount = db.exec("SELECT COUNT(*) as count FROM products")[0]?.values[0]?.[0]
+    console.log(`データベース内の商品数: ${productsCount}`)
+    
+    // モックデータは最小限に留め、実際のスクレイピングに依存
     if (productsCount === 0) {
-      await insertMockProducts()
+      console.log('基本的なサンプル商品を追加中...')
+      await insertBasicSampleProducts()
     }
   }
 
-  const insertMockProducts = async () => {
-    const mockProducts = await generateMockProducts()
+  const insertBasicSampleProducts = async () => {
+    // 最小限のサンプル商品のみ
+    const sampleProducts = [
+      {
+        id: 'sample-1',
+        name: '北海道産 特選和牛セット',
+        price: 15000,
+        originalPrice: 19500,
+        taxBenefit: 4500,
+        category: 'meat',
+        service: { id: 'sample', name: 'サンプル' },
+        imageUrl: '/images/placeholder-product.jpg',
+        description: 'サンプル商品です。実際の商品はスクレイピングにより追加されます。',
+        region: '北海道',
+        tags: ['サンプル'],
+        rating: 4.5,
+        reviewCount: 100
+      },
+      {
+        id: 'sample-2', 
+        name: '新潟県産コシヒカリ 10kg',
+        price: 12000,
+        originalPrice: 15600,
+        taxBenefit: 3600,
+        category: 'rice',
+        service: { id: 'sample', name: 'サンプル' },
+        imageUrl: '/images/placeholder-product.jpg',
+        description: 'サンプル商品です。実際の商品はスクレイピングにより追加されます。',
+        region: '新潟県',
+        tags: ['サンプル'],
+        rating: 4.3,
+        reviewCount: 85
+      }
+    ]
     
     const stmt = db.prepare(`
       INSERT INTO products (
@@ -95,7 +131,7 @@ export const useDatabase = () => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `)
     
-    for (const product of mockProducts) {
+    for (const product of sampleProducts) {
       stmt.run([
         product.id,
         product.name,
@@ -115,6 +151,7 @@ export const useDatabase = () => {
     }
     
     stmt.free()
+    console.log(`${sampleProducts.length}件のサンプル商品を追加しました`)
   }
 
   const insertProduct = (product: any) => {
